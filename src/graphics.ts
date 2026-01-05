@@ -1,5 +1,8 @@
 import type { Color } from './color';
 
+export type CapsStyle = 'none' | 'round' | 'square';
+export type JointStyle = 'bevel' | 'miter' | 'round';
+
 type BeginFillCommand = {
   type: 'beginFill';
   color: Color;
@@ -13,6 +16,9 @@ type LineStyleCommand = {
   type: 'lineStyle';
   thickness?: number;
   color?: Color;
+  caps?: CapsStyle;
+  joints?: JointStyle;
+  miterLimit?: number;
 };
 
 type DrawRectCommand = {
@@ -82,8 +88,21 @@ export class Graphics {
     this._commands.push({ type: 'endFill' });
   }
 
-  lineStyle(thickness?: number, color?: Color): void {
-    this._commands.push({ type: 'lineStyle', thickness, color });
+  lineStyle(
+    thickness?: number,
+    color?: Color,
+    caps?: CapsStyle,
+    joints?: JointStyle,
+    miterLimit?: number,
+  ): void {
+    this._commands.push({
+      type: 'lineStyle',
+      thickness,
+      color,
+      caps,
+      joints,
+      miterLimit,
+    });
   }
 
   drawRect(
@@ -211,8 +230,7 @@ export class Graphics {
           }
           if (currentLine !== null) {
             ctx.beginPath();
-            ctx.lineWidth = currentLine.width;
-            ctx.strokeStyle = currentLine.color;
+            setLineStyle(ctx, currentLine);
             if (radii !== undefined) {
               ctx.roundRect(
                 command.x,
@@ -247,8 +265,7 @@ export class Graphics {
           }
           if (currentLine !== null) {
             ctx.beginPath();
-            ctx.lineWidth = currentLine.width;
-            ctx.strokeStyle = currentLine.color;
+            setLineStyle(ctx, currentLine);
             ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
             ctx.stroke();
           }
@@ -260,8 +277,7 @@ export class Graphics {
           }
           if (currentLine !== null) {
             ctx.beginPath();
-            ctx.lineWidth = currentLine.width;
-            ctx.strokeStyle = currentLine.color;
+            setLineStyle(ctx, currentLine);
             ctx.moveTo(currentPos.x, currentPos.y);
             ctx.lineTo(command.x, command.y);
             ctx.stroke();
@@ -283,8 +299,7 @@ export class Graphics {
           }
           if (currentLine !== null) {
             ctx.beginPath();
-            ctx.lineWidth = currentLine.width;
-            ctx.strokeStyle = currentLine.color;
+            setLineStyle(ctx, currentLine);
             ctx.moveTo(currentPos.x, currentPos.y);
             ctx.bezierCurveTo(
               command.control1X,
@@ -302,5 +317,48 @@ export class Graphics {
         }
       }
     }
+  }
+}
+
+function setLineStyle(
+  ctx: CanvasRenderingContext2D,
+  line: {
+    width: number;
+    color: string;
+    caps?: CapsStyle;
+    joints?: JointStyle;
+    miterLimit?: number;
+  },
+): void {
+  ctx.lineWidth = line.width;
+  ctx.strokeStyle = line.color;
+  ctx.miterLimit = line.miterLimit ?? 3;
+  switch (line.caps) {
+    case 'none':
+      ctx.lineCap = 'butt';
+      break;
+    case 'round':
+      ctx.lineCap = 'round';
+      break;
+    case 'square':
+      ctx.lineCap = 'square';
+      break;
+    default:
+      ctx.lineCap = 'round';
+      break;
+  }
+  switch (line.joints) {
+    case 'bevel':
+      ctx.lineJoin = 'bevel';
+      break;
+    case 'miter':
+      ctx.lineJoin = 'miter';
+      break;
+    case 'round':
+      ctx.lineJoin = 'round';
+      break;
+    default:
+      ctx.lineJoin = 'round';
+      break;
   }
 }
