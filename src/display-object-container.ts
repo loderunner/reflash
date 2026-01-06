@@ -32,7 +32,7 @@ export abstract class DisplayObjectContainer extends DisplayObject {
       child.parent.removeChild(child);
     }
     child[$parent] = this;
-    this._children.unshift(child);
+    this._children.push(child);
   }
 
   /**

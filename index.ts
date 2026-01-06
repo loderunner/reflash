@@ -14,26 +14,34 @@ const stage = new Stage(canvas);
 stage.pixelRatio = dpr;
 
 const square = new Shape();
-square.graphics.beginFill(Color.parse('#ff0000'));
+square.graphics.beginLinearGradientFill(
+  [Color.parse('#ff0000'), Color.parse('#0000ff'), Color.parse('#00ff00')],
+  [0, 0.5, 1],
+  100,
+  -50 * Math.SQRT2,
+  Math.PI / 4,
+);
 square.graphics.drawRect(0, 0, 100, 100);
 square.graphics.endFill();
-square.x = 200;
+
+square.x = 100;
 square.y = 100;
-square.rotation = Math.PI / 4;
+square.rotation = -Math.PI / 4;
 stage.addChild(square);
 
-const hexagon = new Shape();
+const circle = new Shape();
+circle.graphics.beginRadialGradientFill(
+  [Color.parse('#ffffff'), Color.parse('#ff7f7f'), Color.parse('#000000')],
+  [0, 0.5, 1],
+  50,
+  0,
+  0,
+  -25,
+  -25,
+);
+circle.graphics.drawEllipse(0, 0, 100);
+circle.graphics.endFill();
 
-hexagon.graphics.moveTo(0, 100);
-hexagon.graphics.lineTo(25, 25);
-hexagon.graphics.lineStyle(1, Color.parse('#000000'));
-hexagon.graphics.lineTo(100, 25);
-hexagon.graphics.lineStyle(2, Color.parse('#000000'));
-hexagon.graphics.lineTo(125, 100);
-hexagon.graphics.lineStyle(2, Color.parse('#7f0000'));
-hexagon.graphics.lineTo(100, 175);
-hexagon.graphics.lineStyle(2, Color.parse('#007f00'));
-hexagon.graphics.lineTo(25, 175);
-hexagon.graphics.lineStyle(2, Color.parse('#0000007f'));
-hexagon.graphics.lineTo(0, 100);
-stage.addChild(hexagon);
+circle.x = 50;
+circle.y = 50;
+stage.addChild(circle);

@@ -89,9 +89,11 @@ export class Matrix {
    *
    * @param x - Horizontal translation.
    * @param y - Vertical translation.
+   * @returns This matrix, translated.
    */
-  translate(x: number, y: number): void {
+  translate(x: number, y: number): Matrix {
     this.concat(new Matrix(1, 0, 0, 1, x, y));
+    return this;
   }
 
   /**
@@ -99,17 +101,20 @@ export class Matrix {
    *
    * @param x - Horizontal scale factor.
    * @param y - Vertical scale factor.
+   * @returns This matrix, scaled.
    */
-  scale(x: number, y: number): void {
+  scale(x: number, y: number): Matrix {
     this.concat(new Matrix(x, 0, 0, y, 0, 0));
+    return this;
   }
 
   /**
    * Applies a rotation transformation to this matrix.
    *
    * @param angle - Rotation angle in radians.
+   * @returns This matrix, rotated.
    */
-  rotate(angle: number): void {
+  rotate(angle: number): Matrix {
     this.concat(
       new Matrix(
         Math.cos(angle),
@@ -120,6 +125,7 @@ export class Matrix {
         0,
       ),
     );
+    return this;
   }
 }
 

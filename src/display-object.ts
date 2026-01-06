@@ -107,9 +107,10 @@ export abstract class DisplayObject {
   get transform(): Transform {
     if (this._transformMatrixDirty) {
       this._transform.matrix = new Matrix();
-      this._transform.matrix.translate(this.x, this.y);
-      this._transform.matrix.scale(this.scaleX, this.scaleY);
-      this._transform.matrix.rotate(this.rotation);
+      this._transform.matrix
+        .translate(this.x, this.y)
+        .scale(this.scaleX, this.scaleY)
+        .rotate(this.rotation);
       this._transformMatrixDirty = false;
     }
     return this._transform;

@@ -1,4 +1,5 @@
 import type { Color } from './color';
+import { Matrix } from './transform';
 
 /** Line cap style for strokes. */
 export type CapsStyle = 'none' | 'round' | 'square';
@@ -6,9 +7,32 @@ export type CapsStyle = 'none' | 'round' | 'square';
 /** Line joint style for strokes. */
 export type JointStyle = 'bevel' | 'miter' | 'round';
 
+type GradientStop = {
+  color: Color;
+  ratio: number;
+};
+
 type BeginFillCommand = {
   type: 'beginFill';
   color: Color;
+};
+
+type BeginLinearGradientFillCommand = {
+  type: 'beginLinearGradientFill';
+  stops: GradientStop[];
+  width: number;
+  x: number;
+  rotation: number;
+};
+
+type BeginRadialGradientFillCommand = {
+  type: 'beginRadialGradientFill';
+  stops: GradientStop[];
+  radius: number;
+  x: number;
+  y: number;
+  focalPointOffsetX: number;
+  focalPointOffsetY: number;
 };
 
 type EndFillCommand = {
@@ -66,6 +90,8 @@ type MoveToCommand = {
 
 type GraphicsCommand =
   | BeginFillCommand
+  | BeginLinearGradientFillCommand
+  | BeginRadialGradientFillCommand
   | EndFillCommand
   | LineStyleCommand
   | DrawRectCommand
@@ -103,6 +129,124 @@ export class Graphics {
    */
   beginFill(color: Color): void {
     this._commands.push({ type: 'beginFill', color });
+  }
+
+  /**
+   * Begins a fill operation with a linear gradient.
+   *
+   * The gradient line starts at `x` and extends for `width` pixels, rotated by
+   * `rotation` radians around the origin.
+   *
+   * @param colors - Array of colors for the gradient stops.
+   * @param ratios - Array of ratio positions for each color, from 0 to 1.
+   * @param width - Length of the gradient line in pixels.
+   * @param x - Starting x offset of the gradient line.
+   * @param rotation - Rotation angle of the gradient in radians.
+   *
+   * @example
+   * ```ts
+   * graphics.beginLinearGradientFill(
+   *   [Color.parse('#ff0000'), Color.parse('#0000ff')],
+   *   [0, 1],
+   *   100,
+   * );
+   * graphics.drawRect(0, 0, 100, 100);
+   * graphics.endFill();
+   * ```
+   */
+  beginLinearGradientFill(
+    colors: Color[],
+    ratios: number[],
+    width: number,
+    x: number = 0,
+    rotation: number = 0,
+  ): void {
+    const stops: GradientStop[] = [];
+    for (let i = 0; i < colors.length; i++) {
+      const color = colors[i];
+      if (color === undefined) {
+        throw new Error('Color is undefined at index ' + i);
+      }
+      const ratio = ratios[i];
+      if (ratio === undefined) {
+        throw new Error('Ratio is undefined at index ' + i);
+      }
+      if (ratio < 0 || ratio > 1) {
+        throw new Error('Ratio is out of range at index ' + i);
+      }
+      stops.push({ color, ratio });
+    }
+    this._commands.push({
+      type: 'beginLinearGradientFill',
+      stops,
+      width,
+      x,
+      rotation,
+    });
+  }
+
+  /**
+   * Begins a fill operation with a radial gradient.
+   *
+   * The gradient radiates outward from the focal point to the outer circle
+   * defined by `x`, `y`, and `radius`.
+   *
+   * @param colors - Array of colors for the gradient stops.
+   * @param ratios - Array of ratio positions for each color, from 0 to 1.
+   * @param radius - Radius of the outer gradient circle in pixels.
+   * @param x - X coordinate of the gradient center.
+   * @param y - Y coordinate of the gradient center.
+   * @param focalPointOffsetX - X offset of the focal point from the center.
+   * @param focalPointOffsetY - Y offset of the focal point from the center.
+   *
+   * @example
+   * ```ts
+   * graphics.beginRadialGradientFill(
+   *   [Color.parse('#ffffff'), Color.parse('#000000')],
+   *   [0, 1],
+   *   50,
+   *   0,
+   *   0,
+   *   -15,
+   *   -15,
+   * );
+   * graphics.drawEllipse(0, 0, 100);
+   * graphics.endFill();
+   * ```
+   */
+  beginRadialGradientFill(
+    colors: Color[],
+    ratios: number[],
+    radius: number,
+    x: number = 0,
+    y: number = 0,
+    focalPointOffsetX: number = 0,
+    focalPointOffsetY: number = 0,
+  ): void {
+    const stops: GradientStop[] = [];
+    for (let i = 0; i < colors.length; i++) {
+      const color = colors[i];
+      if (color === undefined) {
+        throw new Error('Color is undefined at index ' + i);
+      }
+      const ratio = ratios[i];
+      if (ratio === undefined) {
+        throw new Error('Ratio is undefined at index ' + i);
+      }
+      if (ratio < 0 || ratio > 1) {
+        throw new Error('Ratio is out of range at index ' + i);
+      }
+      stops.push({ color, ratio });
+    }
+    this._commands.push({
+      type: 'beginRadialGradientFill',
+      stops,
+      radius,
+      x,
+      y,
+      focalPointOffsetX,
+      focalPointOffsetY,
+    });
   }
 
   /** Ends the current fill operation. */
@@ -234,7 +378,8 @@ export class Graphics {
    */
   draw(ctx: CanvasRenderingContext2D): void {
     const currentPos = { x: 0, y: 0 };
-    let currentFill: { path: Path2D; style: string } | null = null;
+    let currentFill: { path: Path2D; style: string | CanvasGradient } | null =
+      null;
     let currentLine: { width: number; color: string } | null = null;
 
     ctx.moveTo(0, 0);
@@ -247,6 +392,50 @@ export class Graphics {
             ctx.fill(currentFill.path);
           }
           currentFill = { path: new Path2D(), style: command.color.toRGBA() };
+          currentFill.path.moveTo(currentPos.x, currentPos.y);
+          break;
+        }
+        case 'beginLinearGradientFill': {
+          if (currentFill !== null) {
+            currentFill.path.closePath();
+            ctx.fillStyle = currentFill.style;
+            ctx.fill(currentFill.path);
+          }
+          const matrix = new Matrix()
+            .translate(command.x, 0)
+            .scale(command.width, 1)
+            .rotate(command.rotation);
+          const gradient = ctx.createLinearGradient(
+            matrix.tx,
+            matrix.ty,
+            matrix.tx + matrix.a,
+            matrix.ty + matrix.c,
+          );
+          for (const stop of command.stops) {
+            gradient.addColorStop(stop.ratio, stop.color.toRGBA());
+          }
+          currentFill = { path: new Path2D(), style: gradient };
+          currentFill.path.moveTo(currentPos.x, currentPos.y);
+          break;
+        }
+        case 'beginRadialGradientFill': {
+          if (currentFill !== null) {
+            currentFill.path.closePath();
+            ctx.fillStyle = currentFill.style;
+            ctx.fill(currentFill.path);
+          }
+          const gradient = ctx.createRadialGradient(
+            command.x + command.focalPointOffsetX,
+            command.y + command.focalPointOffsetY,
+            0,
+            command.x,
+            command.y,
+            command.radius,
+          );
+          for (const stop of command.stops) {
+            gradient.addColorStop(stop.ratio, stop.color.toRGBA());
+          }
+          currentFill = { path: new Path2D(), style: gradient };
           currentFill.path.moveTo(currentPos.x, currentPos.y);
           break;
         }
