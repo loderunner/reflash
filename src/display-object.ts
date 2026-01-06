@@ -3,7 +3,24 @@ import { Matrix, Transform } from './transform';
 
 export const $parent = Symbol('parent');
 
+/**
+ * Base class for all objects that can be rendered on the display list.
+ *
+ * @example
+ * ```ts
+ * class Sprite extends DisplayObject {
+ *   render(ctx: CanvasRenderingContext2D): void {
+ *     // Custom rendering logic
+ *   }
+ * }
+ * ```
+ */
 export abstract class DisplayObject {
+  /**
+   * Renders this display object to the given canvas context.
+   *
+   * @param ctx - The canvas 2D rendering context.
+   */
   abstract render(ctx: CanvasRenderingContext2D): void;
 
   protected _x: number = 0;
@@ -20,6 +37,7 @@ export abstract class DisplayObject {
   /** @internal */
   [$parent]: DisplayObjectContainer | null = null;
 
+  /** Horizontal position in pixels. */
   get x(): number {
     return this._x;
   }
@@ -28,6 +46,7 @@ export abstract class DisplayObject {
     this._x = value;
   }
 
+  /** Vertical position in pixels. */
   get y(): number {
     return this._y;
   }
@@ -36,6 +55,7 @@ export abstract class DisplayObject {
     this._y = value;
   }
 
+  /** Horizontal scale factor. Default is 1. */
   get scaleX(): number {
     return this._scaleX;
   }
@@ -44,6 +64,7 @@ export abstract class DisplayObject {
     this._scaleX = value;
   }
 
+  /** Vertical scale factor. Default is 1. */
   get scaleY(): number {
     return this._scaleY;
   }
@@ -52,6 +73,7 @@ export abstract class DisplayObject {
     this._scaleY = value;
   }
 
+  /** Rotation angle in radians. */
   get rotation(): number {
     return this._rotation;
   }
@@ -60,6 +82,7 @@ export abstract class DisplayObject {
     this._rotation = value;
   }
 
+  /** Opacity value in range [0, 1]. Default is 1. */
   get alpha(): number {
     return this._alpha;
   }
@@ -67,6 +90,7 @@ export abstract class DisplayObject {
     this._alpha = value;
   }
 
+  /** Whether this display object is visible. Default is true. */
   get visible(): boolean {
     return this._visible;
   }
@@ -74,10 +98,12 @@ export abstract class DisplayObject {
     this._visible = value;
   }
 
+  /** The parent container of this display object, or null if none. */
   get parent(): DisplayObjectContainer | null {
     return this[$parent];
   }
 
+  /** The transformation matrix for this display object. */
   get transform(): Transform {
     if (this._transformMatrixDirty) {
       this._transform.matrix = new Matrix();

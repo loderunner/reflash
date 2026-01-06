@@ -1,6 +1,7 @@
 import baseConfig from 'eslint-config-loderunner/base';
 import formattingConfig from 'eslint-config-loderunner/formatting';
 import importConfig from 'eslint-config-loderunner/import';
+import jsdocConfig from 'eslint-config-loderunner/jsdoc';
 import typescriptConfig from 'eslint-config-loderunner/typescript';
 import globals from 'globals';
 
@@ -16,5 +17,6 @@ export default [
   ...baseConfig,
   ...typescriptConfig,
   ...importConfig,
+  ...jsdocConfig,
   ...formattingConfig,
 ];

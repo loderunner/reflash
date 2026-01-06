@@ -1,11 +1,27 @@
 import { DisplayObjectContainer } from './display-object-container';
 
+/**
+ * The root container for the display list, responsible for rendering to a canvas.
+ *
+ * @example
+ * ```ts
+ * const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+ * const stage = new Stage(canvas);
+ * stage.addChild(mySprite);
+ * ```
+ */
 export class Stage extends DisplayObjectContainer {
   private _canvas: HTMLCanvasElement;
   private _pixelRatio: number;
+  /** Target frame rate in frames per second. Default is 60. */
   public frameRate: number = 60;
   private _lastFrameTime: number = 0;
 
+  /**
+   * Creates a new Stage instance attached to a canvas element.
+   *
+   * @param canvas - The canvas element to render to.
+   */
   constructor(canvas: HTMLCanvasElement) {
     super();
 
@@ -17,6 +33,7 @@ export class Stage extends DisplayObjectContainer {
     });
   }
 
+  /** The pixel ratio for high-DPI displays. Default is 1. */
   get pixelRatio(): number {
     return this._pixelRatio;
   }
@@ -24,6 +41,11 @@ export class Stage extends DisplayObjectContainer {
     this._pixelRatio = value;
   }
 
+  /**
+   * Renders the stage and all children to the given canvas context.
+   *
+   * @param ctx - The canvas 2D rendering context.
+   */
   render(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     ctx.scale(this._pixelRatio, this._pixelRatio);

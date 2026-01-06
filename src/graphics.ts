@@ -1,6 +1,9 @@
 import type { Color } from './color';
 
+/** Line cap style for strokes. */
 export type CapsStyle = 'none' | 'round' | 'square';
+
+/** Line joint style for strokes. */
 export type JointStyle = 'bevel' | 'miter' | 'round';
 
 type BeginFillCommand = {
@@ -71,23 +74,52 @@ type GraphicsCommand =
   | LineToCommand
   | MoveToCommand;
 
+/**
+ * Provides a vector drawing API for shapes.
+ *
+ * @example
+ * ```ts
+ * const graphics = new Graphics();
+ * graphics.beginFill(Color.parse('#ff0000'));
+ * graphics.drawRect(0, 0, 100, 100);
+ * graphics.endFill();
+ * ```
+ */
 export class Graphics {
   private _commands: GraphicsCommand[] = [];
 
+  /** Creates a new Graphics instance. */
   constructor() {}
 
+  /** Clears all drawing commands. */
   clear(): void {
     this._commands.length = 0;
   }
 
+  /**
+   * Begins a fill operation with the specified color.
+   *
+   * @param color - The fill color.
+   */
   beginFill(color: Color): void {
     this._commands.push({ type: 'beginFill', color });
   }
 
+  /** Ends the current fill operation. */
   endFill(): void {
     this._commands.push({ type: 'endFill' });
   }
 
+  /**
+   * Sets the line style for subsequent drawing operations.
+   * Call with no arguments or undefined thickness to disable stroke.
+   *
+   * @param thickness - Line thickness in pixels.
+   * @param color - Line color.
+   * @param caps - Line cap style.
+   * @param joints - Line joint style.
+   * @param miterLimit - Miter limit for miter joints.
+   */
   lineStyle(
     thickness?: number,
     color?: Color,
@@ -105,6 +137,16 @@ export class Graphics {
     });
   }
 
+  /**
+   * Draws a rectangle, optionally with rounded corners.
+   *
+   * @param x - X coordinate of the top-left corner.
+   * @param y - Y coordinate of the top-left corner.
+   * @param width - Width of the rectangle.
+   * @param height - Height of the rectangle.
+   * @param radiusX - Horizontal corner radius.
+   * @param radiusY - Vertical corner radius.
+   */
   drawRect(
     x: number,
     y: number,
@@ -124,10 +166,28 @@ export class Graphics {
     });
   }
 
+  /**
+   * Draws an ellipse or circle.
+   *
+   * @param x - X coordinate of the center.
+   * @param y - Y coordinate of the center.
+   * @param width - Width of the ellipse.
+   * @param height - Height of the ellipse. If omitted, draws a circle.
+   */
   drawEllipse(x: number, y: number, width: number, height?: number): void {
     this._commands.push({ type: 'drawEllipse', x, y, width, height });
   }
 
+  /**
+   * Draws a cubic Bézier curve from the current position to a point.
+   *
+   * @param control1X - X coordinate of the first control point.
+   * @param control1Y - Y coordinate of the first control point.
+   * @param control2X - X coordinate of the second control point.
+   * @param control2Y - Y coordinate of the second control point.
+   * @param x - X coordinate of the end point.
+   * @param y - Y coordinate of the end point.
+   */
   curveTo(
     control1X: number,
     control1Y: number,
@@ -147,14 +207,31 @@ export class Graphics {
     });
   }
 
+  /**
+   * Draws a line from the current position to a point.
+   *
+   * @param x - X coordinate of the end point.
+   * @param y - Y coordinate of the end point.
+   */
   lineTo(x: number, y: number): void {
     this._commands.push({ type: 'lineTo', x, y });
   }
 
+  /**
+   * Moves the drawing position to a point without drawing.
+   *
+   * @param x - X coordinate to move to.
+   * @param y - Y coordinate to move to.
+   */
   moveTo(x: number, y: number): void {
     this._commands.push({ type: 'moveTo', x, y });
   }
 
+  /**
+   * Renders all drawing commands to the given canvas context.
+   *
+   * @param ctx - The canvas 2D rendering context.
+   */
   draw(ctx: CanvasRenderingContext2D): void {
     const currentPos = { x: 0, y: 0 };
     let currentFill: { path: Path2D; style: string } | null = null;
