@@ -26,6 +26,9 @@ importers:
       eslint:
         specifier: 9.39.2
         version: 9.39.2
+      eslint-config-loderunner:
+        specifier: 1.0.0
+        version: 1.0.0(@eslint/js@9.39.2)(eslint-config-prettier@10.1.8(eslint@9.39.2))(eslint-plugin-import@2.32.0)(eslint@9.39.2)(typescript-eslint@8.51.0(eslint@9.39.2)(typescript@5.9.3))
       eslint-config-prettier:
         specifier: 10.1.8
         version: 10.1.8(eslint@9.39.2)
@@ -42,7 +45,7 @@ importers:
         specifier: 3.7.4
         version: 3.7.4
       typescript:
-        specifier: ~5.9.3
+        specifier: 5.9.3
         version: 5.9.3
       typescript-eslint:
         specifier: 8.51.0
@@ -731,6 +734,32 @@ packages:
   escape-string-regexp@4.0.0:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
+
+  eslint-config-loderunner@1.0.0:
+    resolution: {integrity: sha512-IgJQPsgW/wPdm4saMCFUFOw7tvebJZ4JWqyobuRSQREOAoIT+8ksRQoe6M5ct28OfNUJE2htYdK2Fk1cbBu9XA==}
+    peerDependencies:
+      '@eslint/js': ^9.0.0
+      '@vitest/eslint-plugin': ^1.0.0
+      eslint: ^9.0.0
+      eslint-config-prettier: ^10.0.0
+      eslint-plugin-import: ^2.31.0
+      eslint-plugin-jsdoc: ^50.0.0
+      eslint-plugin-react: ^7.37.0
+      eslint-plugin-react-hooks: ^5.0.0
+      typescript-eslint: ^8.0.0
+    peerDependenciesMeta:
+      '@vitest/eslint-plugin':
+        optional: true
+      eslint-config-prettier:
+        optional: true
+      eslint-plugin-import:
+        optional: true
+      eslint-plugin-jsdoc:
+        optional: true
+      eslint-plugin-react:
+        optional: true
+      eslint-plugin-react-hooks:
+        optional: true
 
   eslint-config-prettier@10.1.8:
     resolution: {integrity: sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==}
@@ -2427,6 +2456,15 @@ snapshots:
       is-symbol: 1.1.1
 
   escape-string-regexp@4.0.0: {}
+
+  eslint-config-loderunner@1.0.0(@eslint/js@9.39.2)(eslint-config-prettier@10.1.8(eslint@9.39.2))(eslint-plugin-import@2.32.0)(eslint@9.39.2)(typescript-eslint@8.51.0(eslint@9.39.2)(typescript@5.9.3)):
+    dependencies:
+      '@eslint/js': 9.39.2
+      eslint: 9.39.2
+      typescript-eslint: 8.51.0(eslint@9.39.2)(typescript@5.9.3)
+    optionalDependencies:
+      eslint-config-prettier: 10.1.8(eslint@9.39.2)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.51.0(eslint@9.39.2)(typescript@5.9.3))(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.2)
 
   eslint-config-prettier@10.1.8(eslint@9.39.2):
     dependencies:
