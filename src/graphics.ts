@@ -58,12 +58,19 @@ type DrawRectCommand = {
   radiusY?: number;
 };
 
+type DrawCircleCommand = {
+  type: 'drawCircle';
+  x: number;
+  y: number;
+  radius: number;
+};
+
 type DrawEllipseCommand = {
   type: 'drawEllipse';
   x: number;
   y: number;
   width: number;
-  height?: number;
+  height: number;
 };
 
 type CurveToCommand = {
@@ -95,6 +102,7 @@ type GraphicsCommand =
   | EndFillCommand
   | LineStyleCommand
   | DrawRectCommand
+  | DrawCircleCommand
   | DrawEllipseCommand
   | CurveToCommand
   | LineToCommand
@@ -210,7 +218,7 @@ export class Graphics {
    *   -15,
    *   -15,
    * );
-   * graphics.drawEllipse(0, 0, 100);
+   * graphics.drawCircle(0, 0, 50);
    * graphics.endFill();
    * ```
    */
@@ -311,14 +319,39 @@ export class Graphics {
   }
 
   /**
-   * Draws an ellipse or circle.
+   * Draws a circle.
    *
    * @param x - X coordinate of the center.
    * @param y - Y coordinate of the center.
-   * @param width - Width of the ellipse.
-   * @param height - Height of the ellipse. If omitted, draws a circle.
+   * @param radius - Radius of the circle.
+   *
+   * @example
+   * ```ts
+   * graphics.beginFill(Color.parse('#ff0000'));
+   * graphics.drawCircle(50, 50, 25);
+   * graphics.endFill();
+   * ```
    */
-  drawEllipse(x: number, y: number, width: number, height?: number): void {
+  drawCircle(x: number, y: number, radius: number): void {
+    this._commands.push({ type: 'drawCircle', x, y, radius });
+  }
+
+  /**
+   * Draws an ellipse.
+   *
+   * @param x - X coordinate of the top-left corner.
+   * @param y - Y coordinate of the top-left corner.
+   * @param width - Width of the ellipse.
+   * @param height - Height of the ellipse.
+   *
+   * @example
+   * ```ts
+   * graphics.beginFill(Color.parse('#ff0000'));
+   * graphics.drawEllipse(0, 0, 100, 50);
+   * graphics.endFill();
+   * ```
+   */
+  drawEllipse(x: number, y: number, width: number, height: number): void {
     this._commands.push({ type: 'drawEllipse', x, y, width, height });
   }
 
@@ -512,12 +545,39 @@ export class Graphics {
           }
           break;
         }
+        case 'drawCircle': {
+          if (currentFill !== null) {
+            currentFill.path.ellipse(
+              command.x,
+              command.y,
+              command.radius,
+              command.radius,
+              0,
+              0,
+              2 * Math.PI,
+            );
+          }
+          if (currentLine !== null) {
+            ctx.beginPath();
+            setLineStyle(ctx, currentLine);
+            ctx.ellipse(
+              command.x,
+              command.y,
+              command.radius,
+              command.radius,
+              0,
+              0,
+              2 * Math.PI,
+            );
+            ctx.stroke();
+          }
+          break;
+        }
         case 'drawEllipse': {
-          const height = command.height ?? command.width;
-          const centerX = command.x;
-          const centerY = command.y;
+          const centerX = command.x + command.width / 2;
+          const centerY = command.y + command.height / 2;
           const radiusX = command.width / 2;
-          const radiusY = height / 2;
+          const radiusY = command.height / 2;
           if (currentFill !== null) {
             currentFill.path.ellipse(
               centerX,

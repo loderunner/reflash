@@ -39,7 +39,7 @@ circle.graphics.beginRadialGradientFill(
   -25,
   -25,
 );
-circle.graphics.drawEllipse(0, 0, 100);
+circle.graphics.drawCircle(0, 0, 50);
 circle.graphics.endFill();
 
 circle.x = 50;
