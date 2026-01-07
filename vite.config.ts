@@ -15,5 +15,5 @@ export default defineConfig({
       name: 'reFlash',
     },
   },
-  plugins: [dts(), externalizeDeps()],
+  plugins: [dts({ tsconfigPath: './tsconfig.dts.json' }), externalizeDeps()],
 });

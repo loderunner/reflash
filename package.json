@@ -7,8 +7,10 @@
   ],
   "main": "./dist/reflash.umd.cjs",
   "module": "./dist/reflash.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/reflash.js",
       "require": "./dist/reflash.umd.cjs"
     }
